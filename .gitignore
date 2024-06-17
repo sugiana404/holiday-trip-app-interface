@@ -44,3 +44,6 @@ app.*.map.json
 
 # Local configuration
 /lib/utils/url_constant.dart
+
+# Dummydata
+/lib/utils/dummy_data.dart

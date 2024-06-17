@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:holiday_trip_app_interface/providers/auth_provider.dart';
 import 'package:holiday_trip_app_interface/screens/home_screen.dart';
 import 'package:holiday_trip_app_interface/screens/login_screen.dart';
+import 'package:holiday_trip_app_interface/utils/color_constant.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -16,17 +17,20 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => AuthProvider()..tryAutoLogin(),
       child: MaterialApp(
+        theme:
+            ThemeData(scaffoldBackgroundColor: ColorConstant.backgroundColor),
         home: Consumer<AuthProvider>(
           builder: (context, auth, _) {
             if (auth.isLoggedIn) {
-              return HomeScreen();
+              return const HomeScreen();
             } else {
-              return LoginScreen();
+              return const LoginScreen();
             }
           },
         ),
         routes: {
-          '/home': (context) => HomeScreen(),
+          '/home': (context) => const HomeScreen(),
+          '/login': (context) => const LoginScreen(),
         },
       ),
     );

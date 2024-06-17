@@ -6,8 +6,22 @@ import 'package:holiday_trip_app_interface/utils/url_constant.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+class TokenData {
+  final String? jwtToken;
+  final int? expiresAt;
+
+  TokenData({this.jwtToken, this.expiresAt});
+}
+
+class AccountData {
+  final String? email;
+  final String? password;
+
+  AccountData({this.email, this.password});
+}
+
 class AuthService {
-  final String apiUrl = "${UrlConstant.loginUrl}";
+  final String apiUrl = UrlConstant.loginUrl;
 
   Future<LoginResponse?> login(String email, String password) async {
     try {
@@ -33,17 +47,48 @@ class AuthService {
       }
     } catch (error) {
       LogConfig.logger.e("Exception during login: $error");
+      return null;
     }
   }
 
-  Future<void> saveToken(String token) async {
+  Future<void> saveToken(String token, int expiresAt) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
+    await prefs.setInt('expiresAt', expiresAt);
+    await getToken();
   }
 
-  Future<String?> getToken() async {
+  Future<void> saveAcc(String email, String password) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    var emailData = await prefs.setString('email', email);
+    var passwordData = await prefs.setString('password', password);
+    LogConfig.logger.w("$emailData, $passwordData");
+    await getAcc();
+  }
+
+  Future<AccountData?> getAcc() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    LogConfig.logger.i("Get ACC data");
+    var email = prefs.getString('email');
+    var password = prefs.getString('password');
+    if (email == null || password == null) {
+      LogConfig.logger.i("Null data");
+      return null;
+    }
+    LogConfig.logger.e(email);
+    LogConfig.logger.i("$email\n $password");
+    return AccountData(email: email, password: password);
+  }
+
+  Future<TokenData?> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    var expiresAt = prefs.getInt('expiresAt');
+    if (token == null || expiresAt == null) {
+      return null;
+    }
+    LogConfig.logger.i("$token\n $expiresAt");
+    return TokenData(expiresAt: expiresAt, jwtToken: token);
   }
 
   Future<void> clearToken() async {
